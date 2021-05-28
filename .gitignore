@@ -3,3 +3,6 @@
 **.bin
 **.elf
 **.o
+**.img
+**.EFI
+**.efi

@@ -2,7 +2,7 @@
 
 const double PI = 3.14159265358979323846264338327950288419716;
 
-static double sin(double x) {
+static inline double sin(double x) {
     double res;
     __asm__ __volatile__(
         "fldl %1;"
@@ -16,7 +16,7 @@ static double sin(double x) {
     return res;
 }
 
-static double cos(double x) {
+static inline double cos(double x) {
     double res;
     __asm__ __volatile__(
         "fldl %1;"
@@ -30,7 +30,7 @@ static double cos(double x) {
     return res;
 }
 
-static double sqrt(double x) {
+static inline double sqrt(double x) {
     double res;
     __asm__ __volatile__(
         "fldl %1;"

@@ -1,33 +1,31 @@
 QEMU=qemu-system-x86_64
-QEMUFLAGS=
+QEMUFLAGS= \
+		-cpu qemu64 \
+		-drive if=pflash,format=raw,unit=0,file=OVMF/OVMF_CODE.fd,readonly=on \
+		-drive if=pflash,format=raw,unit=1,file=OVMF/OVMF_VARS.fd \
+		-drive file=boot_image/myos_boot.img,if=ide,format=raw,index=0,media=disk \
+		-net none
 
-BOOT_OFFSET=0x7c00
-KERN_OFFSET=0x1000
+all: boot_image
 
-export
+boot_image: uefi kernel
+	@make -C boot_image/
 
-
-all: bootloader.img
-
-bootloader.img: boot kernel
-	cat boot/boot.bin kernel/kernel.bin > bootloader.img
-
-boot: FORCE
-	@make -C boot/
+uefi: kernel
+	@make -C uefi/
 
 kernel: FORCE
 	@make -C kernel/
 
 FORCE:
 
+run: boot_image
+	$(QEMU) $(QEMUFLAGS)
 
-run: bootloader.img
-	$(QEMU) $(QEMUFLAGS) -hda bootloader.img
-
-gdb: bootloader.img
-	$(QEMU) $(QEMUFLAGS) -hda bootloader.img -S -gdb tcp::9000
+# gdb: uefi.img
+# 	$(QEMU) $(QEMUFLAGS) -S -gdb tcp::9000
 
 clean:
-	rm -f bootloader.img
 	@make -C kernel/ clean
-	@make -C boot/ clean
+	@make -C uefi/ clean
+	@make -C boot_image

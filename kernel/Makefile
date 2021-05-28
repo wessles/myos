@@ -1,19 +1,16 @@
-ASM=nasm
-ASMFLAGS=-O0 -f elf32 -F dwarf -g -dBOOT_OFFSET=$(BOOT_OFFSET) -dKERN_OFFSET=$(KERN_OFFSET)
 
-CC=gcc
-CCFLAGS=-Wall -m32 -fno-pie -ffreestanding -g
+ARCH = x86_64
+TARGET = kernel.elf
+SRCS = kernel.c
 
-all: kernel.o kernel_entry.elf kernel.bin
+CC = $(ARCH)-elf-gcc
+LD = $(ARCH)-elf-ld
 
-kernel_entry.elf: kernel_entry.asm
-	$(ASM) $(ASMFLAGS) -o $@ $^
+all: $(TARGET)
 
-kernel.o: kernel.c
-	$(CC) $(CCFLAGS) -o $@ -c $^
-
-kernel.bin: kernel_entry.elf kernel.o
-	ld -Ttext $(KERN_OFFSET) -m elf_i386 --oformat binary -o kernel.bin kernel_entry.elf kernel.o
+$(TARGET): $(SRCS)
+	$(CC) -ffreestanding -fno-stack-protector -fno-stack-check -D__$(ARCH)__ -I. -I./uefi -c $< -o kernel.o
+	$(LD) -nostdlib -z max-page-size=0x1000 -Ttext=0x01000000 kernel.o -o $(TARGET)
 
 clean:
-	rm -f *.o *.elf *.bin
+	rm -f *.o $(TARGET)

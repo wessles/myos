@@ -12,6 +12,9 @@ typedef int                 i32;
 typedef long                i64;
 typedef long long           i128;
 
+// boolean definitions
+#include <stdbool.h>
+
 // floating point types
-typedef float           f32;
-typedef double          f64;
+typedef float       f32;
+typedef double      f64;
